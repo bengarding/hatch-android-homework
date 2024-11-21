@@ -1,7 +1,23 @@
 package co.hatch.ui
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import co.hatch.model.DeviceUiModel
 import co.hatch.ui.theme.LocalActivity
 import co.hatch.viewmodel.DevicesViewModel
 
@@ -10,5 +26,83 @@ fun DetailsScreen(
     deviceId: String?,
     viewModel: DevicesViewModel = viewModel(LocalActivity.current)
 ) {
+    val device = viewModel.getDeviceFromId(deviceId)
+    if (device == null) {
+        NoDeviceFound()
+    } else {
+        DeviceDetails(
+            device = device
+        )
+    }
+}
 
+@Composable
+private fun NoDeviceFound() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Warning,
+            contentDescription = null,
+            Modifier.size(60.dp)
+        )
+        Text(
+            text = "Error retrieving device",
+            fontSize = 18.sp,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+    }
+}
+
+@Composable
+private fun DeviceDetails(
+    device: DeviceUiModel
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(all = 12.dp)
+    ) {
+        DeviceItemDetail(
+            label = "Name",
+            value = device.name
+        )
+        DeviceItemDetail(
+            label = "RSSI",
+            value = device.rssi.toString()
+        )
+        DeviceItemDetail(
+            label = "ID",
+            value = device.id
+        )
+        DeviceItemDetail(
+            label = "Connected",
+            value = device.connected.toString()
+        )
+        DeviceItemDetail(
+            label = "Last connected time",
+            value = device.latestConnectedTime.toString()
+        )
+        DeviceItemDetail(
+            label = "Elapsed seconds connected",
+            value = device.elapsedSecsConnected.toString()
+        )
+    }
+}
+
+@Composable
+private fun DeviceItemDetail(label: String, value: String) {
+    Row {
+        Text(
+            text = "$label:",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            modifier = Modifier.padding(end = 4.dp)
+        )
+        Text(
+            text = value,
+            fontSize = 16.sp
+        )
+    }
 }

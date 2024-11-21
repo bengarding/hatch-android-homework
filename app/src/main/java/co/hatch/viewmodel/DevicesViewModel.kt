@@ -40,10 +40,12 @@ class DevicesViewModel : ViewModel() {
                 .mapValues { it.value.sortedBy { device -> device.name.split('#').last().toIntOrNull() } }
                 // Flatten into a single list of devices
                 .flatMap { it.value }
-                // Convert Devices into DeviceUIModels
+                // Convert Devices into DeviceUiModels
                 .map { DeviceUiModel.createFromDevice(it) }
 
             isUpdating = false
         }
     }
+
+    fun getDeviceFromId(deviceId: String?): DeviceUiModel? = mutableDevicesFlow.value.find { it.id == deviceId }
 }
