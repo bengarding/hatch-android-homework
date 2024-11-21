@@ -4,13 +4,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +38,8 @@ fun DetailsScreen(
         NoDeviceFound()
     } else {
         DeviceDetails(
-            device = device
+            device = device,
+            onSaveClicked = { name -> viewModel.updateName(device, name) }
         )
     }
 }
@@ -58,7 +66,8 @@ private fun NoDeviceFound() {
 
 @Composable
 private fun DeviceDetails(
-    device: DeviceUiModel
+    device: DeviceUiModel,
+    onSaveClicked: (String) -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -88,6 +97,10 @@ private fun DeviceDetails(
             label = "Elapsed seconds connected",
             value = device.elapsedSecsConnected.toString()
         )
+
+        EditName(
+            onSaveClicked = onSaveClicked
+        )
     }
 }
 
@@ -104,5 +117,33 @@ private fun DeviceItemDetail(label: String, value: String) {
             text = value,
             fontSize = 16.sp
         )
+    }
+}
+
+@Composable
+private fun EditName(
+    onSaveClicked: (String) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.padding(top = 20.dp)
+    ) {
+        var newName by remember { mutableStateOf("") }
+
+        TextField(
+            value = newName,
+            onValueChange = { newName = it },
+            label = {
+                Text("Enter new name")
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { onSaveClicked(newName) }
+        ) {
+            Text("Save")
+        }
     }
 }

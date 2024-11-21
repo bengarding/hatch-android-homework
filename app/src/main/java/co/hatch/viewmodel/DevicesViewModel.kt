@@ -48,4 +48,15 @@ class DevicesViewModel : ViewModel() {
     }
 
     fun getDeviceFromId(deviceId: String?): DeviceUiModel? = mutableDevicesFlow.value.find { it.id == deviceId }
+
+    fun updateName(
+        device: DeviceUiModel,
+        name: String
+    ) {
+        if (device.connected) {
+            viewModelScope.launch(Dispatchers.IO) {
+                connectivityClient.updateDeviceName(device.id, name)
+            }
+        }
+    }
 }
