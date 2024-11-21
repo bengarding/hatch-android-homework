@@ -39,6 +39,8 @@ fun DetailsScreen(
     } else {
         DeviceDetails(
             device = device,
+            connectToDevice = { viewModel.connectToDevice(device) },
+            disconnectFromDevice = { viewModel.disconnectFromDevice(device) },
             onSaveClicked = { name -> viewModel.updateName(device, name) }
         )
     }
@@ -67,6 +69,8 @@ private fun NoDeviceFound() {
 @Composable
 private fun DeviceDetails(
     device: DeviceUiModel,
+    connectToDevice: () -> Unit,
+    disconnectFromDevice: () -> Unit,
     onSaveClicked: (String) -> Unit
 ) {
     Column(
@@ -98,6 +102,11 @@ private fun DeviceDetails(
             value = device.elapsedSecsConnected.toString()
         )
 
+        ConnectionButtons(
+            connectToDevice = connectToDevice,
+            disconnectFromDevice = disconnectFromDevice
+        )
+
         EditName(
             onSaveClicked = onSaveClicked
         )
@@ -121,12 +130,35 @@ private fun DeviceItemDetail(label: String, value: String) {
 }
 
 @Composable
+private fun ConnectionButtons(
+    connectToDevice: () -> Unit,
+    disconnectFromDevice: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.padding(vertical = 20.dp)
+    ) {
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = connectToDevice
+        ) {
+            Text("Connect to device")
+        }
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = disconnectFromDevice
+        ) {
+            Text("Disconnect from device")
+        }
+    }
+}
+
+@Composable
 private fun EditName(
     onSaveClicked: (String) -> Unit
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(top = 20.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         var newName by remember { mutableStateOf("") }
 

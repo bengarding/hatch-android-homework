@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.hatch.deviceClientLib.connectivity.ConnectivityClient
+import co.hatch.deviceClientLib.model.Device
 import co.hatch.model.DeviceUiModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,6 +49,27 @@ class DevicesViewModel : ViewModel() {
     }
 
     fun getDeviceFromId(deviceId: String?): DeviceUiModel? = mutableDevicesFlow.value.find { it.id == deviceId }
+
+    fun connectToDevice(deviceUiModel: DeviceUiModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            connectivityClient.connectToDeviceBy(
+                deviceUiModel.id,
+                object : ConnectivityClient.OnDeviceStateChangeListener {
+                    override fun onDeviceStateChanged(deviceId: String, device: Device) {
+                        if (deviceUiModel.id == deviceId) {
+                            deviceUiModel.updateFromDevice(device)
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+    fun disconnectFromDevice(deviceUiModel: DeviceUiModel) {
+        viewModelScope.launch(Dispatchers.IO) {
+            connectivityClient.disconnectFromDevice(deviceUiModel.id)
+        }
+    }
 
     fun updateName(
         device: DeviceUiModel,
