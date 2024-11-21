@@ -7,8 +7,11 @@ import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import co.hatch.ui.DetailsScreen
 import co.hatch.ui.DevicesScreen
+import co.hatch.ui.theme.LocalNavController
 
 const val NAV_ROUTE = "navRoute"
+const val DEVICE_ID = "deviceId"
+const val DEVICE_NAME = "deviceName"
 
 enum class NavigationRoute {
     DEVICES_LIST, DETAILS
@@ -23,11 +26,18 @@ fun NavGraphBuilder.navigationGraph() {
             DevicesScreen()
         }
         composable(
-            route = "${NavigationRoute.DETAILS.name}/{deviceId}",
-            arguments = listOf(navArgument("deviceId") { type = NavType.StringType })
+            route = "${NavigationRoute.DETAILS.name}/{$DEVICE_ID}",
+            arguments = listOf(navArgument(DEVICE_ID) { type = NavType.StringType })
         ) { backStackEntry ->
-            val deviceId = backStackEntry.arguments?.getString("deviceId")
-            DetailsScreen(deviceId)
+            val navController = LocalNavController.current
+            val deviceId = backStackEntry.arguments?.getString(DEVICE_ID)
+            DetailsScreen(
+                deviceId = deviceId,
+                onBackWithName = { name ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set(DEVICE_NAME, name)
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

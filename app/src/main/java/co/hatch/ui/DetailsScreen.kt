@@ -1,5 +1,6 @@
 package co.hatch.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,9 +33,15 @@ import co.hatch.viewmodel.DevicesViewModel
 @Composable
 fun DetailsScreen(
     deviceId: String?,
+    onBackWithName: (String?) -> Unit,
     viewModel: DevicesViewModel = viewModel(LocalActivity.current)
 ) {
     val device = viewModel.getDeviceFromId(deviceId)
+
+    BackHandler {
+        onBackWithName(device?.name)
+    }
+
     if (device == null) {
         NoDeviceFound()
     } else {
@@ -161,6 +169,7 @@ private fun EditName(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         var newName by remember { mutableStateOf("") }
+        val keyboardController = LocalSoftwareKeyboardController.current
 
         TextField(
             value = newName,
@@ -173,7 +182,10 @@ private fun EditName(
 
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { onSaveClicked(newName) }
+            onClick = {
+                keyboardController?.hide()
+                onSaveClicked(newName)
+            }
         ) {
             Text("Save")
         }

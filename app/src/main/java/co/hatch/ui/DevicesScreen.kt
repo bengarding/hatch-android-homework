@@ -26,8 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import co.hatch.model.DeviceUiModel
+import co.hatch.navigation.DEVICE_NAME
 import co.hatch.navigation.NavigationRoute
 import co.hatch.ui.theme.LocalActivity
 import co.hatch.ui.theme.LocalNavController
@@ -92,12 +94,26 @@ private fun DevicesList(
     devices: List<DeviceUiModel>
 ) {
     val navController = LocalNavController.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     LazyColumn {
         items(devices) { device ->
             Row(
                 modifier = Modifier
                     .padding(horizontal = 12.dp, vertical = 4.dp)
-                    .clickable { navController.navigate("${NavigationRoute.DETAILS.name}/${device.id}") }
+                    .clickable {
+                        navController.navigate("${NavigationRoute.DETAILS.name}/${device.id}")
+
+                        val result = navController.currentBackStackEntry
+                            ?.savedStateHandle
+                            ?.getLiveData<String?>(DEVICE_NAME)
+
+                        result?.observe(lifecycleOwner) { name ->
+                            if (name != null) {
+                                device.name = name
+                            }
+                            result.removeObservers(lifecycleOwner)
+                        }
+                    }
             ) {
                 Text(
                     text = device.name,
