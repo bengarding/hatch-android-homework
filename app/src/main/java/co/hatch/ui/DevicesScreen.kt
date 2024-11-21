@@ -1,5 +1,6 @@
 package co.hatch.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import co.hatch.model.DeviceUiModel
+import co.hatch.navigation.NavigationRoute
+import co.hatch.ui.theme.LocalActivity
+import co.hatch.ui.theme.LocalNavController
 import co.hatch.viewmodel.DevicesViewModel
 import kotlinx.coroutines.delay
 
@@ -34,7 +38,7 @@ private const val UPDATE_TIME_MILLIS = 10000L
 
 @Composable
 fun DevicesScreen(
-    viewModel: DevicesViewModel = viewModel()
+    viewModel: DevicesViewModel = viewModel(LocalActivity.current)
 ) {
     LaunchedEffect(Unit) {
         while (true) {
@@ -87,10 +91,13 @@ private fun TableHeader() {
 private fun DevicesList(
     devices: List<DeviceUiModel>
 ) {
+    val navController = LocalNavController.current
     LazyColumn {
         items(devices) { device ->
             Row(
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                modifier = Modifier
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                    .clickable { navController.navigate("${NavigationRoute.DETAILS.name}/${device.id}") }
             ) {
                 Text(
                     text = device.name,

@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import co.hatch.navigation.NAV_ROUTE
 import co.hatch.navigation.navigationGraph
+import co.hatch.ui.theme.LocalActivity
 import co.hatch.ui.theme.LocalNavController
 
 class MainActivity : AppCompatActivity() {
@@ -19,7 +20,8 @@ class MainActivity : AppCompatActivity() {
             val navController = rememberNavController()
 
             CompositionLocalProvider(
-                LocalNavController provides navController
+                LocalNavController provides navController,
+                LocalActivity provides this@MainActivity
             ) {
                 NavHost(
                     navController = navController,
