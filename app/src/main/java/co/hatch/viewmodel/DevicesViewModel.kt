@@ -1,5 +1,8 @@
 package co.hatch.viewmodel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.hatch.deviceClientLib.connectivity.ConnectivityClient
@@ -17,12 +20,16 @@ class DevicesViewModel : ViewModel() {
     private val mutableDevicesFlow: MutableStateFlow<List<DeviceUiModel>> = MutableStateFlow(listOf())
     val devicesFlow: StateFlow<List<DeviceUiModel>> = mutableDevicesFlow
 
+    var isUpdating by mutableStateOf(false)
+
     init {
         updateDevices()
     }
 
     fun updateDevices() {
         viewModelScope.launch(Dispatchers.IO) {
+            isUpdating = true
+
             mutableDevicesFlow.value = connectivityClient.discoverDevices()
                 // Creates Map<Int, Device>, which groups devices by the absolute value of RSSI. Using the absolute
                 // value ensures that the sort order will be ascending (stronger signals have lower absolute values)
@@ -35,6 +42,8 @@ class DevicesViewModel : ViewModel() {
                 .flatMap { it.value }
                 // Convert Devices into DeviceUIModels
                 .map { DeviceUiModel.createFromDevice(it) }
+
+            isUpdating = false
         }
     }
 }
